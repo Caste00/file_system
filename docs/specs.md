@@ -10,9 +10,9 @@
 - data_index: __u32__ = `0x420001`
 - timestamp: __u32__ = `data`
 - version: __f32__ = `1.0`
-- bitmap: __[u8, 536870912]__ = `1 = blocco occupato, 0 = blocco libero`
+- bitmap: __[u8, 0x20000000]__ = `1 = blocco occupato, 0 = blocco libero`
 
-Lo spazio occupato dal superblock è di 224 bytes arrotondato ai 4 KB di un blocco, a cui bisogna aggiungere  MB per la bitmap, il primo indirizzo libero è a (536870912 / (4*1024) = 131072 + 1 = `0x20001`)
+Lo spazio occupato dal superblock è di 224 bytes arrotondato ai 4 KB di un blocco, a cui bisogna aggiungere  MB per la bitmap, il primo indirizzo libero è a (0x20000000 / (4*1024) = 131072 + 1 = `0x20001`)
 
 ## Inode
 - descriptor: __u8__ = `type (2 bit) | state (1 bit) | permission (3 bits)`
