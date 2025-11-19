@@ -1,0 +1,8 @@
+pub const MAGIC_NUMBER: u32 = 0xCDCD;
+pub const DISK_DIMENSION: u32 = u32::MAX;
+pub const BLOCK_DIMENSION: u32 = 4096;
+pub const NUMBER_OF_BLOCKS: u32 = 0x20000000;
+pub const NUMBER_OF_INODES: u32 = 0x10000000;
+pub const ROOT_INDEX: u32 = 0x20001;
+pub const DATA_INDEX: u32  = 0x420001;
+pub const BITMAP_DIMENSION: u32 = 0x20000000;
