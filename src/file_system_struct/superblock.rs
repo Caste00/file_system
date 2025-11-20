@@ -1,5 +1,5 @@
 use chrono::Utc;
-use crate::file_system_struct::data::{BLOCK_DIMENSION, DATA_INDEX, DISK_DIMENSION, MAGIC_NUMBER, NUMBER_OF_INODES, ROOT_INDEX, NUMBER_OF_BLOCKS};
+use crate::file_system_struct::data::{MAGIC_NUMBER};
 
 #[derive(Debug)]
 pub struct Superblock {
@@ -12,25 +12,27 @@ pub struct Superblock {
     data_index: u32,
     timestamp: u64,
     version: f32,
-    bitmap: Vec<u8>
 }
 
 
 impl Superblock {
-    pub fn init() -> Self {
+    pub fn init(disk_dimension: u32, block_dimension: u32) -> Self {
         let now = Utc::now().timestamp() as u64;
+        let number_of_blocks = disk_dimension / block_dimension;
+        let number_of_inodes = number_of_blocks; 
+        let root_index = 1 + number_of_blocks / 8;
+        let data_index = root_index + number_of_inodes / 64;
 
         Self {
             magic_number: MAGIC_NUMBER,
-            disk_dimension: DISK_DIMENSION,
-            block_dimension: BLOCK_DIMENSION,
-            number_of_blocks: DISK_DIMENSION / BLOCK_DIMENSION as u32,
-            number_of_inodes: NUMBER_OF_INODES,
-            root_index: ROOT_INDEX,
-            data_index: DATA_INDEX,
+            disk_dimension,
+            block_dimension,
+            number_of_blocks,
+            number_of_inodes,
+            root_index,
+            data_index,
             timestamp: now,
             version: 1.0,
-            bitmap: vec!(0u8; NUMBER_OF_BLOCKS as usize)
         }
     }
 }
