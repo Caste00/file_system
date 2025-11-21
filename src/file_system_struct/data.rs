@@ -1,1 +1,0 @@
-pub const MAGIC_NUMBER: u32 = 0xCDCD;

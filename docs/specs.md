@@ -88,6 +88,8 @@ Prevedo di implementare successivamente:
 - un CRC32 per verificare l'integrità del superblock 
 - copia del superblock, da un altra parte per ridondanza
 - versione che crea inode non in un area specifica ma permetta di salvarli ovunque nel file in modo da sfruttare meglio lo spazio
+ 
+`Tutti i davi sono scritti in BIG ENDIAN`
 
 
 ### Info
