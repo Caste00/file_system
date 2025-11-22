@@ -16,7 +16,7 @@
 
 ### Funzioni
   - `init(disk_size, block_size)` -> Superblock
-  - `get_data(data: &str) -> Result` restituisce un dato, questo viene identificato dal nome, una semplice stringa
+  - `get_data(data: &str) -> Result` restituisce un dato, questo viene identificato dall' enum SuperblockEntryType
   - `write(data: &str) -> Result` permette di scrivere sui campi index_free_node e index_free_inode
   - `check_magic_number(magic_number) -> bool` ritorna true se i magic number corrispondono
 
