@@ -65,7 +65,7 @@ impl Superblock {
     }
 
     pub fn init_from_disk(magic_number: u32, file: &mut File) -> io::Result<Self> {
-        let superblock = Self::load(file)?;
+        let superblock = Self::load(file, SUPERBLOCK_INDEX, None)?;
         if !superblock.check_magic_number() {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid magic number"));
         }
@@ -90,8 +90,9 @@ impl Superblock {
 }
 
 impl LoadAndSave for Superblock {
-    fn load(file: &mut File) -> io::Result<(Self)> where Self: Sized {
-        file.seek(SeekFrom::Start(SUPERBLOCK_INDEX as u64))?;
+    fn load(file: &mut File, index: u32, block_size: Option<u32>) -> io::Result<(Self)> where Self: Sized {
+        let _ = block_size;
+        file.seek(SeekFrom::Start(index as u64))?;
 
         let mut buf32= [0u8; 4];
         let mut buf64 = [0u8; 8];
@@ -134,8 +135,9 @@ impl LoadAndSave for Superblock {
         })
     }
 
-    fn save(&self, file: &mut File) -> io::Result<()> {
-        file.seek(SeekFrom::Start(SUPERBLOCK_INDEX as u64))?;
+    fn save(&self, file: &mut File, index: u32, block_size: Option<u32>) -> io::Result<()> {
+        let _ = block_size;
+        file.seek(SeekFrom::Start(index as u64))?;
 
         file.write_all(&self.magic_number.to_be_bytes())?;
         file.write_all(&self.disk_size.to_be_bytes())?;
