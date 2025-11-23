@@ -1,30 +1,36 @@
+use std::io;
 use crate::file_system_struct::bitmap::bitmap::FreeBlockBitmap;
 use crate::file_system_struct::superblock::SuperblockEntryType;
 use crate::file_system_struct::superblock::Superblock;
 
-// ATTENZIONE: qui la ricerca deve saltare i primi x byte perchè sono quelli del superblock, della bitmap e degli inode
-fn search_free_block(bitmap: FreeBlockBitmap, superblock: Superblock) -> Option<u32> {
-    let m = superblock.free_block_index.write().unwrap();   // prendo il lock
-    let block_size = superblock.get_entry(SuperblockEntryType::BlockSize).unwrap();
-    let number_of_blocks = superblock.get_entry(SuperblockEntryType::NumberOfBlocks).unwrap();
-    let mut number_of_passed_blocks: u32 = 0;
+fn search_free_block(bitmap: FreeBlockBitmap, superblock: Superblock) -> io::Result<()> {
+    let mut m = superblock.free_block_index.write().unwrap();   // prendo il lock
+    let block_size = superblock.get_entry(SuperblockEntryType::BlockSize).unwrap() as u32;
+    let number_of_blocks = superblock.get_entry(SuperblockEntryType::NumberOfBlocks).unwrap() as u32;
+    let data_index = superblock.get_entry(SuperblockEntryType::DataIndex).unwrap() as u32;
 
-    while (number_of_passed_blocks as u64) < number_of_blocks {
-        let bitmap_array = bitmap.get_data();
-        
-        for (byte, index) in bitmap_array.iter().enumerate() {
-            if byte != 0xFF {
-                for i in (0..8).rev() {
-                    let bit = (byte >> i) & 1;
-                    if (bit == 0) {
-                        let free_block_index: u32 = (index * 8) + (&number_of_passed_blocks * block_size);
-                        // return
+    for bitmap_blocks in 0..number_of_blocks {
+        let bitmap_array = bitmap.load_block(bitmap_blocks)?;
+
+        for (byte, byte_index) in bitmap_array.iter().enumerate() {
+            if byte == 0xFF {
+                continue;
+            }
+
+            for bit in 0..8 {
+                if byte & (1 << (7 - bit)) == 0 {
+                    let block_index = (bitmap_blocks * block_size * 8) + (*byte_index as u32 * 8) + (7 - bit);
+
+                    if block_index < data_index {
+                        continue
                     }
+
+                    *m = block_index;
+                    return Ok(())
                 }
             }
         }
-        number_of_passed_blocks += 1;
     }
 
-    None
+    Err(std::io::Error::new(std::io::ErrorKind::NotFound, "Free blocks not found"))
 }
