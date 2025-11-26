@@ -1,16 +1,19 @@
+use std::fs::File;
 use std::io;
 use crate::file_system_struct::bitmap::bitmap::FreeBlockBitmap;
 use crate::file_system_struct::superblock::SuperblockEntryType;
 use crate::file_system_struct::superblock::Superblock;
+use crate::file_system_struct::trait_load_save::LoadAndSave;
 
-fn search_free_block(bitmap: FreeBlockBitmap, superblock: Superblock) -> io::Result<()> {
+fn search_free_block(superblock: Superblock, file: &mut File) -> io::Result<()> {
     let mut m = superblock.free_block_index.write().unwrap();   // prendo il lock
     let block_size = superblock.get_entry(SuperblockEntryType::BlockSize).unwrap() as u32;
     let number_of_blocks = superblock.get_entry(SuperblockEntryType::NumberOfBlocks).unwrap() as u32;
     let data_index = superblock.get_entry(SuperblockEntryType::DataIndex).unwrap() as u32;
 
     for bitmap_blocks in 0..number_of_blocks {
-        let bitmap_array = bitmap.load_block(bitmap_blocks)?;
+        let bitmap = <FreeBlockBitmap as LoadAndSave>::load(file, bitmap_blocks, Option::Some(block_size))?;
+        let bitmap_array = bitmap.get_bitmap();
 
         for (byte, byte_index) in bitmap_array.iter().enumerate() {
             if byte == 0xFF {
@@ -32,5 +35,5 @@ fn search_free_block(bitmap: FreeBlockBitmap, superblock: Superblock) -> io::Res
         }
     }
 
-    Err(std::io::Error::new(std::io::ErrorKind::NotFound, "Free blocks not found"))
+    Err(io::Error::new(io::ErrorKind::NotFound, "Free blocks not found"))
 }

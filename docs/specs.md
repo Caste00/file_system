@@ -44,7 +44,7 @@ Viene scritto a indirizzo 1, cioè dopo il superblock. Viene caricata un blocco 
 - descriptor: __u8__ = `state (1 bit) | type (2 bit) | permission (3 bits)`
 - block_index: __u32__ = `indice del primo blocco di dati`
 - name: __[u8, 32]__ = `32 caratteri`
-- timestamp: __u32__ = `data`
+- timestamp: __u64__ = `data`
 
 ### Funzioni
 - `init(type, permission, block_index, name)`
@@ -61,7 +61,7 @@ Il type:
 - 1 = directory 
 - 2 e 3 in futuro link
 
-Lo spazio occupato in totale è di 41 bytes arrotondati a `64 bytes`, metterò un inode per ogni blocco. In ogni blocco stanno 64 inode.
+Lo spazio occupato in totale è di 45 bytes arrotondati a `64 bytes`, metterò un inode per ogni blocco. In ogni blocco stanno 64 inode.
 
 Quando creo un nuovo inode genero una nuova istanza della struttura inode e la scrivo a un indice
 

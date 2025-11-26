@@ -37,6 +37,9 @@ pub struct Superblock {
 
 impl Superblock {
     pub fn init(disk_size: u32, block_size: u32) -> Self {
+        if disk_size % block_size != 0 {
+            println!("Disk size not divisible by block size");
+        }
         let now = Utc::now().timestamp() as u64;
         let number_of_blocks = disk_size / block_size;
         let number_of_inodes = number_of_blocks; 

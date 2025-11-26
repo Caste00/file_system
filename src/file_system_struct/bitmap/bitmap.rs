@@ -15,8 +15,8 @@ impl FreeBlockBitmap {
         }
     }
 
-    pub fn load_block(&self, bitmap_blocks: u32) -> io::Result<Vec<u8>>  {
-        todo!()
+    pub fn get_bitmap(&self) -> Vec<u8> {
+        self.data.clone()
     }
 }
 

@@ -3,8 +3,13 @@ pub mod file_system_struct {
     pub mod superblock;
     pub mod trait_load_save;
 
-    pub mod bitmap{
-        pub mod free_block_allocator;
+    pub mod bitmap {
+        pub mod search_free_node_on_bitmap;
         pub mod bitmap;
+    }
+
+    pub mod inode {
+        pub mod inode;
+        pub mod search_free_inode;
     }
 }
