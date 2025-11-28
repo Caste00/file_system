@@ -21,7 +21,7 @@ impl FreeBlockBitmap {
 }
 
 impl LoadAndSave for FreeBlockBitmap {
-    fn load(file: &mut File, index: u32, block_size: Option<u32>) -> io::Result<(Self)> where Self: Sized {
+    fn load(file: &mut File, index: u32, block_size: Option<u32>) -> io::Result<Self> where Self: Sized {
         let mut buf = vec![0u8; block_size.unwrap() as usize];
         file.seek(SeekFrom::Start((index as u64) * block_size.unwrap() as u64))?;
         file.read_exact(&mut buf)?;

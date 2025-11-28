@@ -4,7 +4,6 @@ use chrono::Utc;
 use crate::file_system_struct::trait_load_save::LoadAndSave;
 
 const STATE_MASK: u8 = 0b1000_0000;
-const TYPE_MASK: u8 = 0b0110_0000;
 const PERMISSION_MASK: u8 = 0b0001_1100;
 
 pub enum InodeType {
@@ -28,7 +27,7 @@ impl Inode {
             timestamp: 0
         }
     }
-    
+
     pub fn init(descriptor: u8, block_index: u32, name: [u8; 32], timestamp: u64) -> Self {
         Self {
             descriptor,
@@ -119,7 +118,8 @@ impl Inode {
 }
 
 impl LoadAndSave for Inode {
-    fn load(file: &mut File, index: u32, block_size: Option<u32>) -> std::io::Result<(Self)> where Self: Sized {
+    fn load(file: &mut File, index: u32, block_size: Option<u32>) -> std::io::Result<Self> where Self: Sized {
+        let _ = block_size;
         file.seek(SeekFrom::Start(index as u64))?;
 
         let mut buf8 = [0u8; 1];
@@ -145,6 +145,7 @@ impl LoadAndSave for Inode {
     }
 
     fn save(&self, file: &mut File, index: u32, block_size: Option<u32>) -> std::io::Result<()> {
+        let _ = block_size;
         file.seek(SeekFrom::Start(index as u64))?;
 
         file.write_all(&self.descriptor.to_be_bytes())?;
