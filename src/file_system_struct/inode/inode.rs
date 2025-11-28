@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom, Write};
+use chrono::Utc;
 use crate::file_system_struct::trait_load_save::LoadAndSave;
 
 const STATE_MASK: u8 = 0b1000_0000;
@@ -19,12 +20,21 @@ pub struct Inode {
 }
 
 impl Inode {
-    pub fn init() -> Self {
+    pub fn new() -> Self {
         Self {
             descriptor: 0,
             block_index: 0,
             name: [0; 32],
             timestamp: 0
+        }
+    }
+    
+    pub fn init(descriptor: u8, block_index: u32, name: [u8; 32], timestamp: u64) -> Self {
+        Self {
+            descriptor,
+            block_index,
+            name,
+            timestamp
         }
     }
 
@@ -97,12 +107,14 @@ impl Inode {
     }
 
     pub fn alloc_node(&mut self, name: String, read: bool, write: bool, exec: bool, block_index: u32) {
+        let now = Utc::now().timestamp() as u64;
         if self.is_free() {
             self.toggle_type();
         }
         self.set_name(name);
         self.set_permission(read, write, exec);
         self.block_index = block_index;
+        self.timestamp = now;
     }
 }
 

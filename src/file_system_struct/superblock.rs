@@ -29,7 +29,7 @@ pub struct Superblock {
     number_of_inodes: u32,
     root_index: u32,
     pub free_block_index: RwLock<u32>,
-    pub free_inode_index: RwLock<u32>,
+    pub free_inode_index: RwLock<u64>,
     data_index: u32,
     timestamp: u64,
     version: u32,
@@ -46,7 +46,7 @@ impl Superblock {
         let root_index = 1 + number_of_blocks / 8;
         let data_index = root_index + number_of_inodes / 64;
         let free_block_index = RwLock::new(data_index);
-        let free_inode_index = RwLock::new(root_index + 64);
+        let free_inode_index = RwLock::new(root_index as u64 + 64);
 
         Self {
             magic_number: MAGIC_NUMBER,
@@ -84,7 +84,7 @@ impl Superblock {
             SuperblockEntryType::NumberOfInodes => Some(self.number_of_inodes as u64),
             SuperblockEntryType::RootIndex => Some(self.root_index as u64),
             SuperblockEntryType::FreeBlockIndex => { Some(*self.free_block_index.read().unwrap() as u64) }
-            SuperblockEntryType::FreeInodeIndex => { Some(*self.free_inode_index.read().unwrap() as u64) }
+            SuperblockEntryType::FreeInodeIndex => { Some(*self.free_inode_index.read().unwrap()) }
             SuperblockEntryType::DataIndex => Some(self.data_index as u64),
             SuperblockEntryType::Timestamp => Some(self.timestamp),
             SuperblockEntryType::Version => Some(self.version as u64),
@@ -114,8 +114,8 @@ impl LoadAndSave for Superblock {
         let root_index = u32::from_be_bytes(buf32);
         file.read_exact(&mut buf32)?;
         let free_block_index = RwLock::new(u32::from_be_bytes(buf32));
-        file.read_exact(&mut buf32)?;
-        let free_inode_index = RwLock::new(u32::from_be_bytes(buf32));
+        file.read_exact(&mut buf64)?;
+        let free_inode_index = RwLock::new(u64::from_be_bytes(buf64));
         file.read_exact(&mut buf32)?;
         let data_index = u32::from_be_bytes(buf32);
         file.read_exact(&mut buf64)?;

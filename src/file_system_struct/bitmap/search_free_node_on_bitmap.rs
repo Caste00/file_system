@@ -12,7 +12,7 @@ fn search_free_block(superblock: Superblock, file: &mut File) -> io::Result<()> 
     let data_index = superblock.get_entry(SuperblockEntryType::DataIndex).unwrap() as u32;
 
     for bitmap_blocks in 0..number_of_blocks {
-        let bitmap = <FreeBlockBitmap as LoadAndSave>::load(file, bitmap_blocks, Option::Some(block_size))?;
+        let bitmap = <FreeBlockBitmap as LoadAndSave>::load(file, bitmap_blocks, Some(block_size))?;
         let bitmap_array = bitmap.get_bitmap();
 
         for (byte, byte_index) in bitmap_array.iter().enumerate() {

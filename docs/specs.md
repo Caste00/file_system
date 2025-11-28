@@ -10,7 +10,7 @@
 - root_index: __u32__ = `0x20001`
 - data_index: __u32__ = `0x420001`
 - index_free_block: __u32__ = `indice del primo blocco libero` viene messo un semaforo dopo averlo letto e viene chiamata una funzione (asincrona) per scriverne un altro, una volta trovato il semaforo diventa verde.
-- index_free_inode: __u32__ = `indice del primo inode libero` funziona nella stessa maniera di index_free_block
+- index_free_inode: __u64__ = `indice del primo inode libero` funziona nella stessa maniera di index_free_block
 - timestamp: __u32__ = `data`
 - version: __f32__ = `1.0`
 
@@ -21,7 +21,7 @@
   - `check_magic_number(magic_number) -> bool` ritorna true se i magic number corrispondono
 
 ### Info
-Lo spazio occupato dal superblock è di 224 bytes arrotondato ai 4 KB di un blocco.
+Lo spazio occupato dal superblock è di 256 bytes arrotondato ai 4 KB di un blocco.
 Se una funzione cerca un blocco o un inode liberi ma non sono ancora stati trovati, allora si mettono in attesa.
 
 ## Bitmap
