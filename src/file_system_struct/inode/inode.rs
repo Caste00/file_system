@@ -6,6 +6,11 @@ const STATE_MASK: u8 = 0b1000_0000;
 const TYPE_MASK: u8 = 0b0110_0000;
 const PERMISSION_MASK: u8 = 0b0001_1100;
 
+pub enum InodeType {
+    File,
+    Directory,
+    Other,
+}
 pub struct Inode {
     descriptor: u8,
     block_index: u32,
@@ -14,7 +19,91 @@ pub struct Inode {
 }
 
 impl Inode {
+    pub fn init() -> Self {
+        Self {
+            descriptor: 0,
+            block_index: 0,
+            name: [0; 32],
+            timestamp: 0
+        }
+    }
 
+    pub fn is_free(&self) -> bool {
+        self.descriptor & STATE_MASK == 0
+    }
+
+    pub fn toggle_type(&mut self) {
+        self.descriptor ^= 0b1111_1111;
+    }
+
+    pub fn set_name(&mut self, name: String) {
+        let mut name_len = name.len();
+        if name_len > 32 {
+            name_len = 32
+        }
+        for i in 0..name_len {
+            self.name[i] = name.as_bytes()[i];
+        }
+    }
+
+    pub fn get_name(&self) -> String {
+        String::from_utf8(self.name.to_vec()).unwrap()
+    }
+
+    pub fn get_type(&self) -> InodeType {
+        let inode_type = self.descriptor & STATE_MASK;
+        match inode_type {
+            0b0000_0000 => InodeType::File,
+            0b0010_0000 => InodeType::Directory,
+            _ => InodeType::Other
+        }
+    }
+
+    pub fn set_permission(&mut self, read: bool, write: bool, exec: bool) {
+        self.descriptor &= !PERMISSION_MASK;
+        if read {
+            self.descriptor |= 0b0001_0000;
+        }
+        if write {
+            self.descriptor |= 0b0000_1000;
+        }
+        if exec {
+            self.descriptor |= 0b0000_0100;
+        }
+    }
+
+    pub fn get_permission(&self) -> [bool; 3] {
+        let permission = self.descriptor & PERMISSION_MASK;
+        let mut result = [false; 3];
+        if permission & 0b0001_0000 != 0 {
+            result[0] = true;
+        }
+        if permission & 0b0000_1000 != 0 {
+            result[1] = true;
+        }
+        if permission & 0b0000_0100 != 0 {
+            result[2] = true;
+        }
+
+        result
+    }
+
+    pub fn set_block_index(&mut self, block_index: u32) {
+        self.block_index = block_index;
+    }
+
+    pub fn get_block_index(&self) -> u32 {
+        self.block_index
+    }
+
+    pub fn alloc_node(&mut self, name: String, read: bool, write: bool, exec: bool, block_index: u32) {
+        if self.is_free() {
+            self.toggle_type();
+        }
+        self.set_name(name);
+        self.set_permission(read, write, exec);
+        self.block_index = block_index;
+    }
 }
 
 impl LoadAndSave for Inode {
