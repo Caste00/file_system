@@ -1,8 +1,7 @@
 use std::fs::File;
 use std::io;
 use crate::file_system_struct::bitmap::bitmap::FreeBlockBitmap;
-use crate::file_system_struct::superblock::SuperblockEntryType;
-use crate::file_system_struct::superblock::Superblock;
+use crate::file_system_struct::superblock::superblock::{SuperblockEntryType, Superblock};
 use crate::file_system_struct::trait_load_save::LoadAndSave;
 
 fn search_free_block(superblock: Superblock, file: &mut File) -> io::Result<()> {

@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
 use crate::file_system_struct::inode::inode::Inode;
-use crate::file_system_struct::superblock::{Superblock, SuperblockEntryType};
+use crate::file_system_struct::superblock::superblock::{Superblock, SuperblockEntryType};
 
 const INODE_SIZE: usize = 64;
 
