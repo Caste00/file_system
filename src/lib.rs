@@ -14,4 +14,8 @@ pub mod file_system_struct {
         pub mod inode;
         pub mod search_free_inode;
     }
+
+    pub mod data_block {
+        pub mod data_block;
+    }
 }
