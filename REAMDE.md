@@ -2,15 +2,15 @@
 
 Cosa manca:
 - Struttura del blocco dati concatenato con le sue funzioni: 
-    - load
-    - save
-    - write_next
-    - get_next
-    - scrittura dati a catena
+    - load `fatto`
+    - save `fatto`
+    - write_next `fatto`
+    - get_next `fatto`
+    
 
 - Allocazione completa (block + inode), mancano le funzioni per:
-    - marcare blocco come occupato
-    - marcare un blocco come occupato
+    - marcare blocco come occupato `fatto`
+    - marcare un blocco come occupato `fatto`
     - aggiornare bitmap
     - aggiornare superblock 
     - scrivere inode su disco
@@ -28,6 +28,7 @@ Cosa manca:
     - Crea directory root
 
 - Per finire mancano le operazioni di alto livello:
+    - scrittura dati a catena
     - fs_create_file(path)
     - fs_create_dir(path)
     - fs_read(path)

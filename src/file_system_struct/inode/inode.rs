@@ -41,6 +41,7 @@ impl Inode {
         self.descriptor & STATE_MASK == 0
     }
 
+    // probabilmente meglio sostituirlo con due funzioni esplicite
     pub fn toggle_type(&mut self) {
         self.descriptor ^= 0b1111_1111;
     }

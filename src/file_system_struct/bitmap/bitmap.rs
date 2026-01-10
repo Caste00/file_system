@@ -9,14 +9,50 @@ pub struct FreeBlockBitmap {
 
 // I primi x bit devono essere impostati a 1 e pure gli ultimi quelli che non corrispondono a blocchi (filler perchè deve comunque occupare il resto dell'ultimo blocco)
 impl FreeBlockBitmap {
-    fn init(number_of_blocks: u32) -> Self {
+    fn init(number_of_blocks: u32, block_size: u32) -> Self {
+        let total_bytes = (number_of_blocks as usize + 7) / 8;
+        let block_needed = (total_bytes + block_size as usize - 1) / block_size as usize;
+        let padded_size = block_needed * block_size as usize;
+
         Self {
-            data: vec![0; number_of_blocks as usize],
+            data: vec![0; padded_size],
         }
     }
 
     pub fn get_bitmap(&self) -> Vec<u8> {
         self.data.clone()
+    }
+
+    pub fn set_occupated(&mut self, block_index: u32, block_size: u32, file: &mut File) -> io::Result <()> {
+        // TODO manca un controllo sul block_index, non deve accettare blocchi superiori al massimo
+        let block_to_load = block_index / (block_size * 8);
+        let block_index_inside = block_index % (block_size * 8);
+        let byte_index = (block_index_inside / 8) as usize;
+        let bit_index = (block_index_inside % 8) as u8;
+
+        let mut loaded = FreeBlockBitmap::load(file, block_to_load, Some(block_size))?;
+        loaded.data[byte_index] |= 1 << bit_index;
+        self.data = loaded.data;
+
+        self.save(file, block_to_load, Some(block_size))?;
+
+        Ok(())
+    }
+
+    pub fn set_free(&mut self, block_index: u32, block_size: u32, file: &mut File) -> io::Result<()> {
+        // TODO manca un controllo sul block_index, non deve accettare blocchi superiori al massimo
+        let block_to_load = block_index / (block_size * 8);
+        let block_index_inside = block_index % (block_size * 8);
+        let byte_index = (block_index_inside / 8) as usize;
+        let bit_index = (block_index_inside % 8) as u8;
+
+        let mut loaded = FreeBlockBitmap::load(file, block_to_load, Some(block_size))?;
+        loaded.data[byte_index] &= !(1 << bit_index);
+        self.data = loaded.data;
+
+        self.save(file, block_to_load, Some(block_size))?;
+
+        Ok(())
     }
 }
 
