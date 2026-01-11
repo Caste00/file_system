@@ -8,6 +8,7 @@
 - number_of_blocks: __u32__ = `max 0x100000000` 
 - number_of_inodes: __u32__ = `max 0x10000000`
 - root_index: __u32__ = `0x20001`
+- inode_index: __u32__ = `offset da dove partono i blocchi degli inode`
 - data_index: __u32__ = `0x420001`
 - index_free_block: __u32__ = `indice del primo blocco libero` viene messo un semaforo dopo averlo letto e viene chiamata una funzione (asincrona) per scriverne un altro, una volta trovato il semaforo diventa verde.
 - index_free_inode: __u64__ = `indice del primo inode libero` funziona nella stessa maniera di index_free_block
@@ -29,6 +30,7 @@ Se una funzione cerca un blocco o un inode liberi ma non sono ancora stati trova
 - bitmap: __[u8, block_size / 8]__ = `1 = blocco occupato, 0 = blocco libero`
 
 ### Funzioni
+ - `is_occupated(index) -> Bool` 
  - `load_block(index) -> Bitmap` 
  - `save_block(index) -> Result` 
  - `find_free(Superblock)` Ricerca e scrive sul superblock l'index di un blocco libero

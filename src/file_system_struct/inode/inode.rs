@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom, Write};
 use chrono::Utc;
+use crate::file_system_struct::superblock::superblock::Superblock;
 use crate::file_system_struct::trait_load_save::LoadAndSave;
 
 const STATE_MASK: u8 = 0b1000_0000;
@@ -41,9 +42,12 @@ impl Inode {
         self.descriptor & STATE_MASK == 0
     }
 
-    // probabilmente meglio sostituirlo con due funzioni esplicite
-    pub fn toggle_type(&mut self) {
-        self.descriptor ^= 0b1111_1111;
+    pub fn set_free(&mut self) {
+        self.descriptor &= 0b0111_1111;
+    }
+
+    pub fn set_occupated(&mut self) {
+        self.descriptor |= 0b1000_0000;
     }
 
     pub fn set_name(&mut self, name: String) {
@@ -104,17 +108,6 @@ impl Inode {
 
     pub fn get_block_index(&self) -> u32 {
         self.block_index
-    }
-
-    pub fn alloc_node(&mut self, name: String, read: bool, write: bool, exec: bool, block_index: u32) {
-        let now = Utc::now().timestamp() as u64;
-        if self.is_free() {
-            self.toggle_type();
-        }
-        self.set_name(name);
-        self.set_permission(read, write, exec);
-        self.block_index = block_index;
-        self.timestamp = now;
     }
 }
 

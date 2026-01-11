@@ -4,7 +4,7 @@ use crate::file_system_struct::bitmap::bitmap::FreeBlockBitmap;
 use crate::file_system_struct::superblock::superblock::{SuperblockEntryType, Superblock};
 use crate::file_system_struct::trait_load_save::LoadAndSave;
 
-fn search_free_block(superblock: Superblock, file: &mut File) -> io::Result<()> {
+pub fn search_free_block(superblock: &Superblock, file: &mut File) -> io::Result<()> {
     let mut m = superblock.free_block_index.write().unwrap();   // prendo il lock
     let block_size = superblock.get_entry(SuperblockEntryType::BlockSize).unwrap() as u32;
     let number_of_blocks = superblock.get_entry(SuperblockEntryType::NumberOfBlocks).unwrap() as u32;

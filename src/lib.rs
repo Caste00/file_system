@@ -18,4 +18,9 @@ pub mod file_system_struct {
     pub mod data_block {
         pub mod data_block;
     }
+
+    pub mod api {
+        pub mod allocate_block;
+        pub mod allocate_write_inode;
+    }
 }

@@ -13,6 +13,7 @@ pub enum SuperblockEntryType {
     NumberOfBlocks,
     NumberOfInodes,
     RootIndex,
+    InodeIndex,
     FreeBlockIndex,
     FreeInodeIndex,
     DataIndex,
@@ -28,6 +29,7 @@ pub struct Superblock {
     number_of_blocks: u32,
     number_of_inodes: u32,
     root_index: u32,
+    inode_index: u32,
     pub free_block_index: RwLock<u32>,
     pub free_inode_index: RwLock<u64>,
     data_index: u32,
@@ -47,6 +49,10 @@ impl Superblock {
         let data_index = root_index + number_of_inodes / 64;
         let free_block_index = RwLock::new(data_index);
         let free_inode_index = RwLock::new(root_index as u64 + 64);
+        let mut inode_index = number_of_blocks / (block_size * 8) + 1;
+        if number_of_blocks % (block_size * 8) != 0 {
+            inode_index += 1;
+        }
 
         Self {
             magic_number: MAGIC_NUMBER,
@@ -55,6 +61,7 @@ impl Superblock {
             number_of_blocks,
             number_of_inodes,
             root_index,
+            inode_index,
             free_block_index,
             free_inode_index,
             data_index,
@@ -83,6 +90,7 @@ impl Superblock {
             SuperblockEntryType::NumberOfBlocks => Some(self.number_of_blocks as u64),
             SuperblockEntryType::NumberOfInodes => Some(self.number_of_inodes as u64),
             SuperblockEntryType::RootIndex => Some(self.root_index as u64),
+            SuperblockEntryType::InodeIndex => Some(self.inode_index as u64),
             SuperblockEntryType::FreeBlockIndex => { Some(*self.free_block_index.read().unwrap() as u64) }
             SuperblockEntryType::FreeInodeIndex => { Some(*self.free_inode_index.read().unwrap()) }
             SuperblockEntryType::DataIndex => Some(self.data_index as u64),
@@ -113,6 +121,8 @@ impl LoadAndSave for Superblock {
         file.read_exact(&mut buf32)?;
         let root_index = u32::from_be_bytes(buf32);
         file.read_exact(&mut buf32)?;
+        let inode_index = u32::from_be_bytes(buf32);
+        file.read_exact(&mut buf32)?;
         let free_block_index = RwLock::new(u32::from_be_bytes(buf32));
         file.read_exact(&mut buf64)?;
         let free_inode_index = RwLock::new(u64::from_be_bytes(buf64));
@@ -130,6 +140,7 @@ impl LoadAndSave for Superblock {
             number_of_blocks,
             number_of_inodes,
             root_index,
+            inode_index,
             free_block_index,
             free_inode_index,
             data_index,
@@ -148,6 +159,7 @@ impl LoadAndSave for Superblock {
         file.write_all(&self.number_of_blocks.to_be_bytes())?;
         file.write_all(&self.number_of_inodes.to_be_bytes())?;
         file.write_all(&self.root_index.to_be_bytes())?;
+        file.write_all(&self.inode_index.to_be_bytes())?;
         file.write_all(&self.free_block_index.read().unwrap().to_be_bytes())?;
         file.write_all(&self.free_inode_index.read().unwrap().to_be_bytes())?;
         file.write_all(&self.data_index.to_be_bytes())?;

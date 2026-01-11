@@ -34,3 +34,6 @@ Cosa manca:
     - fs_read(path)
     - fs_write(path, data)
     - fs_ls(path)
+
+### Extra:
+    - funzione per ricercare un file o una directory 
