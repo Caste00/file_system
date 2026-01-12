@@ -29,6 +29,14 @@ pub fn allocate_inode(superblock: &Superblock, file: &mut File) -> io::Result<u3
     Ok(free_inode_index)
 }
 
-pub fn write_inode(inode, file) {
+// Scrive un inode sul disco con offset corretto
+pub fn write_inode(superblock: &Superblock, inode: Inode, inode_index: u32, file: &mut File) -> io::Result<()> {
+    let inode_start_block = superblock.get_entry(SuperblockEntryType::InodeIndex).unwrap() as u32;
+    let block_size = superblock.get_entry(SuperblockEntryType::BlockSize).unwrap() as u32;
+    let inode_start_index = inode_start_block * block_size;
+    let inode_offset = inode_start_index + (inode_index * INODE_SIZE);
 
+    inode.save(file, inode_offset, None)?;
+    
+    Ok(())
 }
