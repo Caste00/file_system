@@ -7,6 +7,8 @@ use crate::file_system_struct::inode::search_free_inode::search_free_inode;
 use crate::file_system_struct::superblock::superblock::{Superblock, SuperblockEntryType};
 use crate::file_system_struct::trait_load_save::LoadAndSave;
 
+//TODO va controllato perchè parte la ricerca di un nuovo inode ma lo salvo subito dopo, non sono certo
+// che aspetti che lo trovi prima di salvarlo sul file però
 pub fn allocate_inode(superblock: &Superblock, file: &mut File) -> io::Result<u32> {
     let block_size = superblock.get_entry(SuperblockEntryType::BlockSize).unwrap() as u32;
     let inode_start_block = superblock.get_entry(SuperblockEntryType::InodeIndex).unwrap() as u32;

@@ -11,20 +11,21 @@ use crate::file_system_struct::superblock::superblock::{Superblock, SuperblockEn
 pub fn search_free_inode(file: &mut File, superblock: &Superblock) -> io::Result<()> {
     let mut m = superblock.free_inode_index.write().unwrap();
 
-    let inode_index = superblock.get_entry(SuperblockEntryType::FreeInodeIndex).unwrap() as u32;
-    let inode_start_block = superblock.get_entry(SuperblockEntryType::InodeIndex).unwrap() as u32;
     let block_size = superblock.get_entry(SuperblockEntryType::BlockSize).unwrap() as u32;
     let number_of_inodes = superblock.get_entry(SuperblockEntryType::NumberOfInodes).unwrap() as u32;
+    let inode_start_block = superblock.get_entry(SuperblockEntryType::InodeIndex).unwrap() as u32;  // indice del primo blocco contenente un inode (root è sempre il primo inode)
     let inode_start_index = inode_start_block * block_size;
-    let mut buf = vec![0u8; block_size as usize];
     let inodes_per_block = block_size / INODE_SIZE;
     let mut inode_blocks = number_of_inodes / inodes_per_block;
     if number_of_inodes % inodes_per_block != 0 {
         inode_blocks += 1;
     }
+    let mut buf = vec![0u8; block_size as usize];
 
     for blocks_of_inode in 0..inode_blocks {
-        file.seek(SeekFrom::Start((inode_start_index + blocks_of_inode * block_size) as u64))?;
+        let block_offset = inode_start_index + blocks_of_inode * block_size;
+
+        file.seek(SeekFrom::Start(block_offset as u64))?;
         file.read(&mut buf)?;
 
         for (chunk_index, chunk) in buf.chunks(INODE_SIZE as usize).enumerate() {
@@ -36,14 +37,14 @@ pub fn search_free_inode(file: &mut File, superblock: &Superblock) -> io::Result
 
             let inode = Inode::init(descriptor, block_index, name, timestamp);
             if inode.is_free() {
-                let inode_offset = inode_start_index +
-                    blocks_of_inode * blocks_of_inode +
-                    chunk_index as u32 * INODE_SIZE;
+                let inode_offset = block_offset + (chunk_index as u32 * INODE_SIZE);
                 *m = inode_offset as u64;
+                return Ok(());
             }
         }
     }
-    
+
+    Ok(())
 }
 
 
